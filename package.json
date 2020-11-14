@@ -1,0 +1,24 @@
+{
+    "name": "com.pastasfuture.audio",
+    "version": "1.0.0",
+    "displayName": "Pastasfuture Audio",
+    "description": "A system for pooling audio playback, as well as evaluating world space audio sources, through volumes, in burst.",
+    "unity": "2019.3",
+    "dependencies":
+    {
+        "com.unity.burst": "1.2.3",
+        "com.unity.mathematics": "1.1.0",
+        "com.unity.render-pipelines.core": "7.3.1"
+    },
+    "keywords":
+    [
+        "audio",
+        "sound",
+        "volume"
+    ],
+    "author": 
+    {
+        "name": "pastasfuture",
+        "url": "https://twitter.com/pastasfuture"
+    }
+}
