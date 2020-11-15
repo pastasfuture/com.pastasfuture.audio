@@ -49,7 +49,11 @@ namespace Pastasfuture.Audio.Editor
 
         public override void OnInspectorGUI()
         {
+            serializedObject.Update();
+
             var volumeFalloff = target as VolumeFalloff;
+
+            bool inspectorChanged = false;
 
             EditorGUILayout.BeginVertical();
 
@@ -57,6 +61,7 @@ namespace Pastasfuture.Audio.Editor
             volumeFalloff.isTransformScaleUsed = EditorGUILayout.Toggle("Is Transform Scale Used", volumeFalloff.isTransformScaleUsed);
             if (EditorGUI.EndChangeCheck())
             {
+                inspectorChanged = true;
                 volumeFalloff.Constrain();
                 Undo.RecordObject(volumeFalloff, "Change Volume Falloff Is Transform Scale Used");
             }
@@ -65,6 +70,7 @@ namespace Pastasfuture.Audio.Editor
             volumeFalloff.weight = EditorGUILayout.FloatField("Weight", volumeFalloff.weight);
             if (EditorGUI.EndChangeCheck())
             {
+                inspectorChanged = true;
                 volumeFalloff.Constrain();
                 Undo.RecordObject(volumeFalloff, "Change Volume Falloff Weight");
             }
@@ -73,6 +79,7 @@ namespace Pastasfuture.Audio.Editor
             volumeFalloff.center = EditorGUILayout.Vector3Field("Center", volumeFalloff.center);
             if (EditorGUI.EndChangeCheck())
             {
+                inspectorChanged = true;
                 volumeFalloff.Constrain();
                 Undo.RecordObject(volumeFalloff, "Change Volume Falloff Center");
             }
@@ -81,6 +88,7 @@ namespace Pastasfuture.Audio.Editor
             volumeFalloff.size = EditorGUILayout.Vector3Field("Size", volumeFalloff.size);
             if (EditorGUI.EndChangeCheck())
             {
+                inspectorChanged = true;
                 volumeFalloff.Constrain();
                 Undo.RecordObject(volumeFalloff, "Change Volume Falloff Size");
             }
@@ -89,6 +97,7 @@ namespace Pastasfuture.Audio.Editor
             volumeFalloff.fadePositive = EditorGUILayout.Vector3Field("Fade Positive", volumeFalloff.fadePositive);
             if (EditorGUI.EndChangeCheck())
             {
+                inspectorChanged = true;
                 volumeFalloff.Constrain();
                 Undo.RecordObject(volumeFalloff, "Change Volume Falloff Fade Positive");
             }
@@ -97,6 +106,7 @@ namespace Pastasfuture.Audio.Editor
             volumeFalloff.fadeNegative = EditorGUILayout.Vector3Field("Fade Negative", volumeFalloff.fadeNegative);
             if (EditorGUI.EndChangeCheck())
             {
+                inspectorChanged = true;
                 volumeFalloff.Constrain();
                 Undo.RecordObject(volumeFalloff, "Change Volume Falloff Fade Negative");
             }
@@ -105,6 +115,7 @@ namespace Pastasfuture.Audio.Editor
             volumeFalloff.distanceFadeStart = EditorGUILayout.FloatField("Fade Distance Start", volumeFalloff.distanceFadeStart);
             if (EditorGUI.EndChangeCheck())
             {
+                inspectorChanged = true;
                 volumeFalloff.Constrain();
                 Undo.RecordObject(volumeFalloff, "Change Volume Falloff Fade Distance Start");
             }
@@ -113,6 +124,7 @@ namespace Pastasfuture.Audio.Editor
             volumeFalloff.distanceFadeEnd = EditorGUILayout.FloatField("Fade Distance End", volumeFalloff.distanceFadeEnd);
             if (EditorGUI.EndChangeCheck())
             {
+                inspectorChanged = true;
                 volumeFalloff.Constrain();
                 Undo.RecordObject(volumeFalloff, "Change Volume Falloff Fade Distance End");
             }
@@ -121,6 +133,7 @@ namespace Pastasfuture.Audio.Editor
             volumeFalloff.debugColor = EditorGUILayout.ColorField("Debug Color", volumeFalloff.debugColor);
             if (EditorGUI.EndChangeCheck())
             {
+                inspectorChanged = true;
                 volumeFalloff.Constrain();
                 Undo.RecordObject(volumeFalloff, "Change Volume Falloff Debug Color");
             }
@@ -128,6 +141,13 @@ namespace Pastasfuture.Audio.Editor
             editMode = (VolumeFalloffEditMode)EditorGUILayout.Popup("Edit Mode", (int)editMode, VOLUME_FALLOFF_EDIT_MODE_NAMES);
 
             EditorGUILayout.EndVertical();
+
+            serializedObject.ApplyModifiedProperties();
+
+            if(inspectorChanged)
+            {
+                UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+            }
         }
 
         static float3 ComputeCenterBlendLocalPosition(VolumeFalloff volumeFalloff)
