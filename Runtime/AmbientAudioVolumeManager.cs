@@ -119,7 +119,8 @@ namespace Pastasfuture.Audio.Runtime
 
             float3 targetPositionWS = targetTransform.position;
             float3 targetTangentDirectionWS = targetTransform.right;
-            ComputeAudioVolumeAtPositionAndDirectionFromEngineData(targetPositionWS, targetTangentDirectionWS);
+            float3 targetForwardDirectionWS = targetTransform.forward;
+            ComputeAudioVolumeAtPositionAndDirectionFromEngineData(targetPositionWS, targetTangentDirectionWS, targetForwardDirectionWS);
             
             PlayAudioSourcesAtVolume();
         }
@@ -139,7 +140,7 @@ namespace Pastasfuture.Audio.Runtime
         }
 
         [BurstCompile]
-        private void ComputeAudioVolumeAtPositionAndDirectionFromEngineData(float3 targetPositionWS, float3 targetTangentDirectionWS)
+        private void ComputeAudioVolumeAtPositionAndDirectionFromEngineData(float3 targetPositionWS, float3 targetTangentDirectionWS, float3 targetForwardDirectionWS)
         {
             for (int i = 0; i < audioVolumeCount; ++i)
             {
@@ -173,6 +174,9 @@ namespace Pastasfuture.Audio.Runtime
                     math.saturate(math.dot(targetTangentDirectionWS, targetToAudioDirectionWS) * 0.5f + 0.5f)
                 );
 
+                // Add behind head attenuation to help differentiate between things in front and things behind the camera.
+                earWeights *= (1.0f - math.max(0.0f, math.dot(-targetForwardDirectionWS, targetToAudioDirectionWS))) * 0.5f + 0.5f;
+
                 audioVolume[audioEngineData.audioIndex] = earWeights * audioVolumeIsotropic + audioVolume[audioEngineData.audioIndex];
             }
         }
@@ -201,7 +205,9 @@ namespace Pastasfuture.Audio.Runtime
                     }
 
                     float volumeIsotropic = math.max(audioVolume[i].x, audioVolume[i].y); // TODO: This?
-                    float panStereo = (audioVolume[i].y - audioVolume[i].x) / math.max(audioVolume[i].x, audioVolume[i].y);
+                    float panStereo = (volumeIsotropic > 1e-5f)
+                        ? ((audioVolume[i].y - audioVolume[i].x) / volumeIsotropic)
+                        : 0.0f;
 
                     // TODO: Investigate how we should actually tonemap audio.
                     float volumeIsotropicTonemapped = math.saturate(volumeIsotropic / (volumeIsotropic + 1.0f));
