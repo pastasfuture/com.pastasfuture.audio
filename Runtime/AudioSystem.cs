@@ -255,6 +255,28 @@ namespace Pastasfuture.Audio.Runtime
             return element;
         }
 
+        public static AudioPoolElement PlayScheduled(AudioClip clip, float volume, bool loop, double startTime)
+        {
+            return AudioSystem.Instance.PlayScheduledInternal(clip, volume, loop, startTime);
+        }
+
+        private AudioPoolElement PlayScheduledInternal(AudioClip clip, float volume, bool loop, double startTime)
+        {
+            var element = audioPool.Take();
+            if (element == null)
+            {
+                Debug.Assert(false, "Error: AudioSystem: Failed to play clip as there are no free pool elements.");
+                return null;
+            }
+            element.source.clip = clip;
+            element.source.volume = volume;
+            element.source.loop = loop;
+            element.source.panStereo = 0.0f;
+            element.source.pitch = 1.0f;
+            element.source.PlayScheduled(AudioSettings.dspTime + startTime);
+            return element;
+        }
+
         public static void PlayOneShot(AudioClip clip, float volumeScale = 1.0f)
         {
             // Debug.Log("Requesting to play audio clip: " + clip.name + "with load state: " + clip.loadState);
