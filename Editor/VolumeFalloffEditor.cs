@@ -16,6 +16,20 @@ namespace Pastasfuture.Audio.Editor
     {
         static HierarchicalBox s_ShapeBox;
         internal static HierarchicalBox s_BlendBox;
+        VolumeFalloffSerialized volumeFalloffSerialized;
+
+        internal static class Styles
+        {
+            internal static readonly GUIContent isTransformScaleUsed = new GUIContent("Is Transform Scale Used");
+            internal static readonly GUIContent weight = new GUIContent("Weight");
+            internal static readonly GUIContent center = new GUIContent("Center");
+            internal static readonly GUIContent size = new GUIContent("Size");
+            internal static readonly GUIContent fadePositive = new GUIContent("Fade Positive");
+            internal static readonly GUIContent fadeNegative = new GUIContent("Fade Negative");
+            internal static readonly GUIContent distanceFadeStart = new GUIContent("Distance Fade Start");
+            internal static readonly GUIContent distanceFadeEnd = new GUIContent("Distance Fade End");
+            internal static readonly GUIContent debugColor = new GUIContent("Debug Color");
+        }
 
         private enum VolumeFalloffEditMode
         {
@@ -34,6 +48,7 @@ namespace Pastasfuture.Audio.Editor
         
         void OnEnable()
         {
+            volumeFalloffSerialized = new VolumeFalloffSerialized(serializedObject);
             var volumeFalloff = target as VolumeFalloff;
 
             if (s_ShapeBox == null || s_ShapeBox.Equals(null))
@@ -49,7 +64,7 @@ namespace Pastasfuture.Audio.Editor
 
         public override void OnInspectorGUI()
         {
-            serializedObject.Update();
+            volumeFalloffSerialized.Update();
 
             var volumeFalloff = target as VolumeFalloff;
 
@@ -58,91 +73,87 @@ namespace Pastasfuture.Audio.Editor
             EditorGUILayout.BeginVertical();
 
             EditorGUI.BeginChangeCheck();
-            volumeFalloff.isTransformScaleUsed = EditorGUILayout.Toggle("Is Transform Scale Used", volumeFalloff.isTransformScaleUsed);
+            EditorGUILayout.PropertyField(volumeFalloffSerialized.isTransformScaleUsed, Styles.isTransformScaleUsed);
             if (EditorGUI.EndChangeCheck())
             {
                 inspectorChanged = true;
                 volumeFalloff.Constrain();
-                Undo.RecordObject(volumeFalloff, "Change Volume Falloff Is Transform Scale Used");
             }
 
             EditorGUI.BeginChangeCheck();
-            volumeFalloff.weight = EditorGUILayout.FloatField("Weight", volumeFalloff.weight);
+            EditorGUILayout.PropertyField(volumeFalloffSerialized.weight, Styles.weight);
             if (EditorGUI.EndChangeCheck())
             {
                 inspectorChanged = true;
                 volumeFalloff.Constrain();
-                Undo.RecordObject(volumeFalloff, "Change Volume Falloff Weight");
             }
 
             EditorGUI.BeginChangeCheck();
-            volumeFalloff.center = EditorGUILayout.Vector3Field("Center", volumeFalloff.center);
+            EditorGUILayout.PropertyField(volumeFalloffSerialized.center, Styles.center);
             if (EditorGUI.EndChangeCheck())
             {
                 inspectorChanged = true;
                 volumeFalloff.Constrain();
-                Undo.RecordObject(volumeFalloff, "Change Volume Falloff Center");
             }
 
             EditorGUI.BeginChangeCheck();
-            volumeFalloff.size = EditorGUILayout.Vector3Field("Size", volumeFalloff.size);
+            EditorGUILayout.PropertyField(volumeFalloffSerialized.size, Styles.size);
             if (EditorGUI.EndChangeCheck())
             {
                 inspectorChanged = true;
                 volumeFalloff.Constrain();
-                Undo.RecordObject(volumeFalloff, "Change Volume Falloff Size");
             }
 
             EditorGUI.BeginChangeCheck();
-            volumeFalloff.fadePositive = EditorGUILayout.Vector3Field("Fade Positive", volumeFalloff.fadePositive);
+            EditorGUILayout.PropertyField(volumeFalloffSerialized.fadePositive, Styles.fadePositive);
             if (EditorGUI.EndChangeCheck())
             {
                 inspectorChanged = true;
                 volumeFalloff.Constrain();
-                Undo.RecordObject(volumeFalloff, "Change Volume Falloff Fade Positive");
             }
 
             EditorGUI.BeginChangeCheck();
-            volumeFalloff.fadeNegative = EditorGUILayout.Vector3Field("Fade Negative", volumeFalloff.fadeNegative);
+            EditorGUILayout.PropertyField(volumeFalloffSerialized.fadeNegative, Styles.fadeNegative);
             if (EditorGUI.EndChangeCheck())
             {
                 inspectorChanged = true;
                 volumeFalloff.Constrain();
-                Undo.RecordObject(volumeFalloff, "Change Volume Falloff Fade Negative");
             }
 
             EditorGUI.BeginChangeCheck();
-            volumeFalloff.distanceFadeStart = EditorGUILayout.FloatField("Fade Distance Start", volumeFalloff.distanceFadeStart);
+            EditorGUILayout.PropertyField(volumeFalloffSerialized.distanceFadeStart, Styles.distanceFadeStart);
             if (EditorGUI.EndChangeCheck())
             {
                 inspectorChanged = true;
                 volumeFalloff.Constrain();
-                Undo.RecordObject(volumeFalloff, "Change Volume Falloff Fade Distance Start");
             }
 
             EditorGUI.BeginChangeCheck();
-            volumeFalloff.distanceFadeEnd = EditorGUILayout.FloatField("Fade Distance End", volumeFalloff.distanceFadeEnd);
+            EditorGUILayout.PropertyField(volumeFalloffSerialized.distanceFadeEnd, Styles.distanceFadeEnd);
             if (EditorGUI.EndChangeCheck())
             {
                 inspectorChanged = true;
                 volumeFalloff.Constrain();
-                Undo.RecordObject(volumeFalloff, "Change Volume Falloff Fade Distance End");
             }
 
             EditorGUI.BeginChangeCheck();
-            volumeFalloff.debugColor = EditorGUILayout.ColorField("Debug Color", volumeFalloff.debugColor);
+            EditorGUILayout.PropertyField(volumeFalloffSerialized.debugColor, Styles.debugColor);
             if (EditorGUI.EndChangeCheck())
             {
                 inspectorChanged = true;
                 volumeFalloff.Constrain();
-                Undo.RecordObject(volumeFalloff, "Change Volume Falloff Debug Color");
             }
 
             editMode = (VolumeFalloffEditMode)EditorGUILayout.Popup("Edit Mode", (int)editMode, VOLUME_FALLOFF_EDIT_MODE_NAMES);
 
             EditorGUILayout.EndVertical();
 
-            serializedObject.ApplyModifiedProperties();
+            // if (inspectorChanged)
+            // {
+            //     EditorUtility.SetDirty(volumeFalloff);
+            // }
+
+            volumeFalloffSerialized.ApplyModifiedProperties();
 
             if(inspectorChanged)
             {
