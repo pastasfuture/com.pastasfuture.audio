@@ -40,14 +40,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 4825107669640225867}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2ce95ee1fd475e2479093fe8c83c856d, type: 3}
+  m_Script: {fileID: 11500000, guid: 7085bae5b19029a4182a66d10efd61cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   localizedAudioPool:
-    audioSourcePrefab: {fileID: 767129828710921506, guid: 8986e77644bcae444b6eb41bc736a315,
-      type: 3}
+    audioSourcePrefab: {fileID: 1944535145066700020, guid: 917816ea891a8ef46aea4e964354275d, type: 3}
     poolSize: 128
   audioPool:
-    audioSourcePrefab: {fileID: 1944535145066700020, guid: 3432100590ab97f46aadb904ea299d5e,
-      type: 3}
+    audioSourcePrefab: {fileID: 1944535145066700020, guid: a1ae24ef95645854395f4ec744e10eac, type: 3}
     poolSize: 128
