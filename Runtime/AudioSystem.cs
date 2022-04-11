@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using UnityEngine.Audio;
 
 namespace Pastasfuture.Audio.Runtime
 {
@@ -53,6 +54,9 @@ namespace Pastasfuture.Audio.Runtime
             isValid = false;
             location = null;
             isLocationSet = false;
+            source.panStereo = 0.0f;
+            source.pitch = 1.0f;
+            source.outputAudioMixerGroup = null;
         }
 
         public bool HasInvalidPosition()
@@ -234,11 +238,12 @@ namespace Pastasfuture.Audio.Runtime
         // Public static API for playing audio
         // Play and PlayOneShot are for UI sounds, or other non-localized sounds
         // PlayAt and PlayOneShotAt are for positional sounds in the world, either parented to a transform or played at a location
-        public static AudioPoolElement Play(AudioClip clip, float volume = 1.0f, bool loop = false)
+        public static AudioPoolElement Play(AudioClip clip, float volume = 1.0f, bool loop = false, AudioMixerGroup outputAudioMixerGroup = null)
         {
-            return AudioSystem.Instance.PlayInternal(clip, volume, loop);
+            return AudioSystem.Instance.PlayInternal(clip, volume, loop, outputAudioMixerGroup);
         }
-        private AudioPoolElement PlayInternal(AudioClip clip, float volume, bool loop)
+
+        private AudioPoolElement PlayInternal(AudioClip clip, float volume, bool loop, AudioMixerGroup outputAudioMixerGroup)
         {
             var element = audioPool.Take();
             if (element == null)
@@ -251,16 +256,17 @@ namespace Pastasfuture.Audio.Runtime
             element.source.loop = loop;
             element.source.panStereo = 0.0f;
             element.source.pitch = 1.0f;
+            element.source.outputAudioMixerGroup = null;
             element.source.Play();
             return element;
         }
 
-        public static AudioPoolElement PlayScheduled(AudioClip clip, float volume, bool loop, double startTime)
+        public static AudioPoolElement PlayScheduled(AudioClip clip, float volume, bool loop, double startTime, AudioMixerGroup outputAudioMixerGroup = null)
         {
-            return AudioSystem.Instance.PlayScheduledInternal(clip, volume, loop, startTime);
+            return AudioSystem.Instance.PlayScheduledInternal(clip, volume, loop, startTime, outputAudioMixerGroup);
         }
 
-        private AudioPoolElement PlayScheduledInternal(AudioClip clip, float volume, bool loop, double startTime)
+        private AudioPoolElement PlayScheduledInternal(AudioClip clip, float volume, bool loop, double startTime, AudioMixerGroup outputAudioMixerGroup)
         {
             var element = audioPool.Take();
             if (element == null)
@@ -273,27 +279,28 @@ namespace Pastasfuture.Audio.Runtime
             element.source.loop = loop;
             element.source.panStereo = 0.0f;
             element.source.pitch = 1.0f;
+            element.source.outputAudioMixerGroup = outputAudioMixerGroup;
             element.source.PlayScheduled(AudioSettings.dspTime + startTime);
             return element;
         }
 
-        public static void PlayOneShot(AudioClip clip, float volumeScale = 1.0f)
+        public static void PlayOneShot(AudioClip clip, float volumeScale = 1.0f, AudioMixerGroup outputAudioMixerGroup = null)
         {
             // Debug.Log("Requesting to play audio clip: " + clip.name + "with load state: " + clip.loadState);
-            AudioSystem.Instance.PlayOneShotInternal(clip, volumeScale);
+            AudioSystem.Instance.PlayOneShotInternal(clip, volumeScale, outputAudioMixerGroup);
         }
 
-        public static void PlayOneShotRandom(ref List<AudioClip> clips, float volumeScale = 1.0f)
+        public static void PlayOneShotRandom(ref List<AudioClip> clips, float volumeScale = 1.0f, AudioMixerGroup outputAudioMixerGroup = null)
         {
             if (clips.Count > 0)
             {
                 int clipIndex = Mathf.FloorToInt(UnityEngine.Random.value * (float)(clips.Count - 1) + 0.5f);
                 Debug.Assert(clips[clipIndex] != null);
-                AudioSystem.PlayOneShot(clips[clipIndex], volumeScale);
+                AudioSystem.PlayOneShot(clips[clipIndex], volumeScale, outputAudioMixerGroup);
             }
         }
 
-        private void PlayOneShotInternal(AudioClip clip, float volumeScale)
+        private void PlayOneShotInternal(AudioClip clip, float volumeScale, AudioMixerGroup outputAudioMixerGroup)
         {
             var element = audioPool.Take();
             if (element == null)
@@ -307,16 +314,17 @@ namespace Pastasfuture.Audio.Runtime
             element.source.loop = false;
             element.source.panStereo = 0.0f;
             element.source.pitch = 1.0f;
+            element.source.outputAudioMixerGroup = outputAudioMixerGroup;
             element.source.Play();
             audioPool.RecycleOnClipComplete(element);
         }
 
-        public static AudioPoolElement PlayAt(AudioClip clip, Transform parent, Vector3 offset, float volume = 1.0f, bool loop = false)
+        public static AudioPoolElement PlayAt(AudioClip clip, Transform parent, Vector3 offset, float volume = 1.0f, bool loop = false, AudioMixerGroup outputAudioMixerGroup = null)
         {
-            return AudioSystem.Instance.PlayAtInternal(clip, parent, offset, volume, loop);
+            return AudioSystem.Instance.PlayAtInternal(clip, parent, offset, volume, loop, outputAudioMixerGroup);
         }
 
-        private AudioPoolElement PlayAtInternal(AudioClip clip, Transform parent, Vector3 offset, float volume, bool loop)
+        private AudioPoolElement PlayAtInternal(AudioClip clip, Transform parent, Vector3 offset, float volume, bool loop, AudioMixerGroup outputAudioMixerGroup)
         {
             var element = localizedAudioPool.Take();
             if (element == null)
@@ -341,26 +349,27 @@ namespace Pastasfuture.Audio.Runtime
             element.source.loop = loop;
             element.source.panStereo = 0.0f;
             element.source.pitch = 1.0f;
+            element.source.outputAudioMixerGroup = outputAudioMixerGroup;
             element.source.Play();
             return element;
         }
 
-        public static void PlayOneShotAt(AudioClip clip, Transform parent, Vector3 offset, float volumeScale = 1.0f)
+        public static void PlayOneShotAt(AudioClip clip, Transform parent, Vector3 offset, float volumeScale = 1.0f, AudioMixerGroup outputAudioMixerGroup = null)
         {
-            AudioSystem.Instance.PlayOneShotAtInternal(clip, parent, offset, volumeScale);
+            AudioSystem.Instance.PlayOneShotAtInternal(clip, parent, offset, volumeScale, outputAudioMixerGroup);
         }
 
-        public static void PlayOneShotAtRandom(ref List<AudioClip> clips, Transform parent, Vector3 offset, float volumeScale = 1.0f)
+        public static void PlayOneShotAtRandom(ref List<AudioClip> clips, Transform parent, Vector3 offset, float volumeScale = 1.0f, AudioMixerGroup outputAudioMixerGroup = null)
         {
             if (clips.Count > 0)
             {
                 int clipIndex = Mathf.FloorToInt(UnityEngine.Random.value * (float)(clips.Count - 1) + 0.5f);
                 Debug.Assert(clips[clipIndex] != null);
-                AudioSystem.PlayOneShotAt(clips[clipIndex], parent, offset, volumeScale);
+                AudioSystem.PlayOneShotAt(clips[clipIndex], parent, offset, volumeScale, outputAudioMixerGroup);
             }
         }
 
-        private void PlayOneShotAtInternal(AudioClip clip, Transform parent, Vector3 offset, float volumeScale)
+        private void PlayOneShotAtInternal(AudioClip clip, Transform parent, Vector3 offset, float volumeScale, AudioMixerGroup outputAudioMixerGroup)
         {
             var element = localizedAudioPool.Take();
             if (element == null)
@@ -383,6 +392,7 @@ namespace Pastasfuture.Audio.Runtime
             element.source.loop = false;
             element.source.panStereo = 0.0f;
             element.source.pitch = 1.0f;
+            element.source.outputAudioMixerGroup = outputAudioMixerGroup;
             element.source.Play();
             localizedAudioPool.RecycleOnClipComplete(element);
         }
